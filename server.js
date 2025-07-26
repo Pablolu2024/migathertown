@@ -1,7 +1,31 @@
 const http = require('http');
+const fs = require('fs');
 const WebSocket = require('ws');
+const path = require('path');
 
-const wss = new WebSocket.Server({ port: 8080 });
+const server = http.createServer((req, res) => {
+  let filePath = '.' + req.url;
+  if (filePath === './') filePath = './index.html';
+
+  const ext = path.extname(filePath);
+  const types = {
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.png': 'image/png',
+  };
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(404);
+      res.end('Archivo no encontrado');
+    } else {
+      res.writeHead(200, { 'Content-Type': types[ext] || 'text/plain' });
+      res.end(content, 'utf-8');
+    }
+  });
+});
+
+const wss = new WebSocket.Server({ server });
 const players = {};
 
 wss.on('connection', (ws) => {
@@ -12,11 +36,8 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (msg) => {
     const data = JSON.parse(msg);
-    if (data.type === 'move') {
-      players[id] = { ...players[id], x: data.x, y: data.y };
-    }
-    if (data.type === 'config') {
-      players[id] = { ...players[id], avatar: data.avatar, map: data.map };
+    if (data.type === 'move' || data.type === 'config') {
+      players[id] = { ...players[id], ...data };
     }
 
     const payload = JSON.stringify({ type: 'players', players });
@@ -34,4 +55,4 @@ wss.on('connection', (ws) => {
   });
 });
 
-console.log('Servidor corriendo en http://localhost:8080');
+server.listen(8080, () => console.log('Servidor en http://localhost:8080'));
