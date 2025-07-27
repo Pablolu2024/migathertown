@@ -8,7 +8,7 @@ const serverHttp = http.createServer(app);
 const wss = new WebSocket.Server({ server: serverHttp });
 const jugadores = {};
 
-// Sirve archivos estáticos (index.html, client.js, imágenes, mapas, etc.)
+// Servir archivos estáticos
 app.use(express.static(__dirname));
 
 // WebSocket
@@ -31,11 +31,15 @@ wss.on("connection", socket => {
 });
 
 function broadcast(msg) {
-  wss.clients.forEach(c => c.readyState === WebSocket.OPEN && c.send(JSON.stringify(msg)));
+  wss.clients.forEach(c => {
+    if (c.readyState === WebSocket.OPEN) {
+      c.send(JSON.stringify(msg));
+    }
+  });
 }
 
-// Iniciar servidor HTTP
-const PORT = 3000;
+// CAMBIO CLAVE para Render
+const PORT = process.env.PORT || 3000;
 serverHttp.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`Servidor escuchando en puerto ${PORT}`);
 });
