@@ -1,17 +1,16 @@
 {
-  "dependencies": {
-    "express": "^5.1.0",
-    "ws": "^8.18.3"
-  },
-  "name": "ver6",
+  "name": "gather-town-clone",
   "version": "1.0.0",
-  "main": "client.js",
+  "description": "Juego multijugador estilo Gather Town con WebSocket",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.13.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }
