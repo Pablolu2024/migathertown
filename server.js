@@ -10,7 +10,8 @@ const jugadores = {};
 
 // Servir archivos estáticos
 app.use(express.static(__dirname));
-
+app.use(express.static(path.join(__dirname, 'assets')));
+app.use(express.static(path.join(__dirname, 'maps')));
 // WebSocket
 wss.on("connection", socket => {
   const id = Math.random().toString(36).slice(2);
