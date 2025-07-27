@@ -40,7 +40,7 @@ function iniciarJuego() {
 }
 
 function conectarSocket() {
-  socket = new WebSocket("ws://192.168.100.14:3000");
+  socket = new WebSocket("ws://migathertown.onrender.com");
   socket.onopen = () => socket.send(JSON.stringify({ tipo: "nuevo", datos: jugador }));
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
