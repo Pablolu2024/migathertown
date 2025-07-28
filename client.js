@@ -5,6 +5,7 @@ let jugador = {};
 let jugadores = {};
 let mapa = [];
 let tileSize = 32;
+let tileCols = 25; // Cambia este número según el número de columnas de tu tileset
 let tileset = new Image();
 tileset.src = "assets/tiles.png";
 let avatarImgs = {};
@@ -30,7 +31,7 @@ function iniciarJuego() {
     .then(datos => {
       mapa = datos.mapa;
       colisiones = datos.colisiones;
-      zonas = datos.zonas || []; // Carga zonas interactivas si existen
+      zonas = datos.zonas || [];
       document.getElementById("inicio").style.display = "none";
       canvas.style.display = "block";
       document.getElementById("chat").style.display = "block";
@@ -40,9 +41,9 @@ function iniciarJuego() {
 }
 
 function conectarSocket() {
-  socket = new WebSocket("wss://migathertown.onrender.com");
-  
-  
+  const protocolo = window.location.protocol === "https:" ? "wss" : "ws";
+  const host = window.location.host;
+  socket = new WebSocket(`${protocolo}://${host}`);
   socket.onopen = () => socket.send(JSON.stringify({ tipo: "nuevo", datos: jugador }));
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
@@ -91,7 +92,15 @@ function dibujar() {
   for (let y = 0; y < mapa.length; y++) {
     for (let x = 0; x < mapa[y].length; x++) {
       let tile = mapa[y][x];
-      ctx.drawImage(tileset, tile * tileSize, 0, tileSize, tileSize, x * tileSize, y * tileSize, tileSize, tileSize);
+      let tileX = tile % tileCols;
+      let tileY = Math.floor(tile / tileCols);
+      ctx.drawImage(
+        tileset,
+        tileX * tileSize, tileY * tileSize,
+        tileSize, tileSize,
+        x * tileSize, y * tileSize,
+        tileSize, tileSize
+      );
     }
   }
 
