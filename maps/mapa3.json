@@ -37,13 +37,21 @@
     [1,0,0,1,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ],
 
 "zonas": [
-    { "x": 1, "y": 8, "url": "https://onedrive.live.com/embed?resid=137F5EF2D7F2BD1C%212026&authkey=!AKYewE9OKjebnIc" },
-    { "x": 5, "y": 3, "url": " https://pablolu2024.github.io/jurasico/" },
-    { "x": 23, "y": 1, "url": "https://zeno.fm/radio/ochenterosriobamba/" }
+    { "x": 1, "y": 8,"tipo": "url", "url": "https://onedrive.live.com/embed?resid=137F5EF2D7F2BD1C%212026&authkey=!AKYewE9OKjebnIc" },
+    { "x": 5, "y": 3,"tipo": "url", "url": " https://pablolu2024.github.io/jurasico/" },
+    { "x": 23, "y": 1,"tipo": "url", "url": "https://zeno.fm/radio/ochenterosriobamba/" },
+{
+      "x": 6,
+      "y": 17,
+      "tipo": "mapa",
+      "destino": "maps/mapa1.json",
+      "xInicio": 12,
+      "yInicio": 16
+    }
   ]
 
 }
