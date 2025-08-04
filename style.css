@@ -1,6 +1,6 @@
 body { font-family: sans-serif; background: #222; color: white; text-align: center; }
 body {
-  background-image: url('/fondo.jpg');
+  background-image: url('fondo.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -55,5 +55,6 @@ body {
   font-weight: bold;
   cursor: pointer;
 }
+
 
 
