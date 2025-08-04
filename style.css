@@ -1,4 +1,14 @@
 body { font-family: sans-serif; background: #222; color: white; text-align: center; }
+body {
+  background-image: url('fondo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+  
+}
+
 #canvas { display: none; border: 2px solid white; margin-top: 10px; }
 #chat {
   display: none;
@@ -45,3 +55,4 @@ body { font-family: sans-serif; background: #222; color: white; text-align: cent
   font-weight: bold;
   cursor: pointer;
 }
+
