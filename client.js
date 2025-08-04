@@ -5,12 +5,12 @@ let jugador = {};
 let jugadores = {};
 let mapa = [];
 let tileSize = 32;
-let tileCols = 25; // Cambia este número según el número de columnas de tu tileset
+let tileCols = 25;
 let tileset = new Image();
 tileset.src = "assets/tiles.png";
 let avatarImgs = {};
 let colisiones = [];
-let zonas = []; // Zonas interactivas
+let zonas = [];
 
 function iniciarJuego() {
   const nombre = document.getElementById("nombre").value.trim();
@@ -26,7 +26,11 @@ function iniciarJuego() {
     mapa: mapaSeleccionado
   };
 
-  fetch(mapaSeleccionado)
+  cargarMapaYConectar(mapaSeleccionado);
+}
+
+function cargarMapaYConectar(nombreMapa) {
+  fetch(nombreMapa)
     .then(r => r.json())
     .then(datos => {
       mapa = datos.mapa;
@@ -44,12 +48,15 @@ function conectarSocket() {
   const protocolo = window.location.protocol === "https:" ? "wss" : "ws";
   const host = window.location.host;
   socket = new WebSocket(`${protocolo}://${host}`);
+
   socket.onopen = () => socket.send(JSON.stringify({ tipo: "nuevo", datos: jugador }));
+
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
     if (msg.tipo === "jugadores") jugadores = msg.datos;
     if (msg.tipo === "chat") agregarMensaje(msg.datos);
   };
+
   document.addEventListener("keydown", mover);
 }
 
@@ -81,7 +88,22 @@ function verificarZonaInteractiva(x, y) {
   const py = Math.floor(y / tileSize);
   zonas.forEach(zona => {
     if (zona.x === px && zona.y === py) {
-      window.open(zona.url, "_blank");
+      if (zona.tipo === "url" && zona.url) {
+        window.open(zona.url, "_blank");
+      } else if (zona.tipo === "mapa" && zona.destino) {
+        jugador.mapa = zona.destino;
+        jugador.x = (zona.xInicio ?? 2) * tileSize;
+        jugador.y = (zona.yInicio ?? 2) * tileSize;
+
+        fetch(zona.destino)
+          .then(r => r.json())
+          .then(datos => {
+            mapa = datos.mapa;
+            colisiones = datos.colisiones;
+            zonas = datos.zonas || [];
+            socket.send(JSON.stringify({ tipo: "movimiento", datos: jugador }));
+          });
+      }
     }
   });
 }
@@ -106,6 +128,7 @@ function dibujar() {
 
   for (const id in jugadores) {
     const j = jugadores[id];
+    if (j.mapa !== jugador.mapa) continue;
     if (!avatarImgs[id]) {
       const img = new Image();
       img.src = j.avatar;

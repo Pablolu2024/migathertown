@@ -6,41 +6,67 @@ const path = require("path");
 const app = express();
 const serverHttp = http.createServer(app);
 const wss = new WebSocket.Server({ server: serverHttp });
-const jugadores = {};
 
-// Servir archivos estáticos
+const jugadoresPorMapa = {};
+
 app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, 'assets')));
-app.use(express.static(path.join(__dirname, 'maps')));
-// WebSocket
+
 wss.on("connection", socket => {
   const id = Math.random().toString(36).slice(2);
+  let mapaJugador = null;
 
   socket.on("message", mensaje => {
     const msg = JSON.parse(mensaje);
-    if (msg.tipo === "nuevo") jugadores[id] = msg.datos;
-    if (msg.tipo === "movimiento") jugadores[id] = msg.datos;
-    if (msg.tipo === "chat") broadcast({ tipo: "chat", datos: msg.datos });
 
-    broadcast({ tipo: "jugadores", datos: jugadores });
+    if (msg.tipo === "nuevo") {
+      mapaJugador = msg.datos.mapa || "mapa1.json";
+      if (!jugadoresPorMapa[mapaJugador]) jugadoresPorMapa[mapaJugador] = {};
+      jugadoresPorMapa[mapaJugador][id] = msg.datos;
+    }
+
+    if (msg.tipo === "movimiento" && msg.datos?.mapa) {
+      // Cambio de mapa
+      if (mapaJugador && jugadoresPorMapa[mapaJugador]) {
+        delete jugadoresPorMapa[mapaJugador][id];
+      }
+
+      mapaJugador = msg.datos.mapa;
+      if (!jugadoresPorMapa[mapaJugador]) jugadoresPorMapa[mapaJugador] = {};
+      jugadoresPorMapa[mapaJugador][id] = msg.datos;
+    }
+
+    if (msg.tipo === "chat" && mapaJugador) {
+      broadcast(mapaJugador, { tipo: "chat", datos: msg.datos });
+    }
+
+    if (mapaJugador) {
+      broadcast(mapaJugador, {
+        tipo: "jugadores",
+        datos: jugadoresPorMapa[mapaJugador],
+      });
+    }
   });
 
   socket.on("close", () => {
-    delete jugadores[id];
-    broadcast({ tipo: "jugadores", datos: jugadores });
+    if (mapaJugador && jugadoresPorMapa[mapaJugador]) {
+      delete jugadoresPorMapa[mapaJugador][id];
+      broadcast(mapaJugador, {
+        tipo: "jugadores",
+        datos: jugadoresPorMapa[mapaJugador],
+      });
+    }
   });
 });
 
-function broadcast(msg) {
-  wss.clients.forEach(c => {
-    if (c.readyState === WebSocket.OPEN) {
-      c.send(JSON.stringify(msg));
+function broadcast(mapa, msg) {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(msg));
     }
   });
 }
 
-// CAMBIO CLAVE para Render
 const PORT = process.env.PORT || 3000;
 serverHttp.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
